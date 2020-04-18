@@ -1,0 +1,19 @@
+{% extends 'groups/group_base.html' %}
+{% load bootstrap4 %}
+{% block group_content %}
+{% if group.slug %}
+<h4>Update {{group.slug}}</h4>
+<form action="{% url 'groups:update' slug=group.slug %}" method="POST" id="groupform">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <input type="submit" value="Update" class="btn btn-primary btn-lg">
+</form>
+{% else %}
+<h4>Create a new group</h4>
+<form action="{% url 'groups:create' %}" method="POST" id="groupform">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <input type="submit" value="Create" class="btn btn-primary btn-lg">
+</form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,1 @@
+from comments.forms import CommentForm

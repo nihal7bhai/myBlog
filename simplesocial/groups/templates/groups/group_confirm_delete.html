@@ -1,0 +1,9 @@
+{% extends 'groups/group_base.html' %}
+{% block group_content %}
+<h3>Are you sure want to delete {{group.slug with hide_delete=True}}? </h3>
+<form method="POST">
+    {% csrf_token %}
+    <input type="submit" value="confirm delete" class="btn btn-danger btn-lg">
+    <a href="{% url 'groups:single' slug=group.slug %}" class="btn btn-simple btn-lg btn-default">Cancel</a>
+</form>
+{% endblock %}

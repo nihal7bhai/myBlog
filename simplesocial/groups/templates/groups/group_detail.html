@@ -1,0 +1,79 @@
+{% extends 'groups/group_base.html' %}
+{% block pregroup %}
+<div class="row">
+    <div class="col-md-4">
+<h1>{{group.name}}</h1>
+<h3>Created By : <a href="{% url 'posts:for_user' username=group.created_by.username %}">@{{group.created_by}}</a></h3>
+<h3>Description: {{group.description}}</h3>
+<h3>Member Count: {{group.members.count}}</h3>
+
+{% if user in group.members.all %}
+    <div class="content">
+    <button id="opener" class="btn btn-primary btn-lg">Click to see Members</button>
+    <div id="dialog">
+        <h3>Group Member{{group.members.count|pluralize:',s'}}: </h3>
+        <div class="container-fluid">
+        {% for member in group.members.all %}
+        <h4>{{member}}
+            {% if not member == user and group.created_by == user %}
+            <a href="{% url 'groups:kick' user=member.pk group=group.pk %}" title="delete" class="btn btn-simple"><span class="glyphicon glyphicon-remove text-danger" aria-hidden='true'></span><span class="text-danger icon-label">Kick Out</span></a>
+        {% endif %}
+        </h4>
+        {% endfor %}
+        </div>
+    </div>
+    </div>
+    <br>
+{% endif %}
+
+<div class="content">
+    {% if user.is_authenticated and user == group.created_by %}
+        <form method="POST" action="{% url 'groups:remove' slug=group.slug %}">
+        {% csrf_token %}
+        <input type="submit" onclick="alert('Are you sure want to delete this Group?');" class="btn btn-danger btn-lg float-right" style="margin-right:2%;" value="Delete">
+        <a href="{% url 'groups:update' slug=group.slug %}"><button type="button" class="btn btn-warning btn-lg">Update</button></a>
+        </form>
+    {% else %}
+        {% if user in group.members.all %}
+        <a href="{% url 'groups:leave' slug=group.slug %}" class="btn btn-lg btn-warning"><span class="glyphicon glyphicon-remove-circle"></span>Leave</a>
+        {% else %}
+        <a href="{% url 'groups:join' slug=group.slug %}" class="btn btn-lg btn-primary"><span class="glyphicon glyphicon-ok-circle"></span>Join</a>
+        {% endif %}
+    {% endif %}
+</div>
+</div>
+{% endblock %}
+{% block group_content %}
+<div class="col-md-8">
+    {% if group.posts__approved_post.count == 0 %}
+    <h2>No posts yet!!</h2>
+    {% else %}
+    {% if group.created_by == user %}
+        {% for post in group.posts.all %}
+        {% include 'posts/_post.html' %}
+        {% endfor %}
+    {% else %}
+        {% for post in group.posts.all %}
+        {% if post.approved_post %}
+            {% include 'posts/_post.html' %}
+        {% endif %}
+        {% endfor %}
+    {% endif %}
+    {% endif %}
+</div>
+</div>
+<script>
+    
+jQuery(document).ready(function(){
+    jQuery(function() {
+        jQuery( "#dialog" ).dialog({
+          autoOpen: false
+        });
+    
+        jQuery( "#opener" ).click(function() {
+          jQuery( "#dialog" ).dialog( "open" );
+        });
+      });
+    });
+</script>
+{% endblock %}

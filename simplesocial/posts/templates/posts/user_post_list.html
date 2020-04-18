@@ -1,0 +1,21 @@
+{% extends 'posts/post_base.html' %}
+{% load post_extras %}
+{% block prepost %}
+<div class="col-md-4">
+    <h1>@{{post_user.username}}</h1>
+    <h3>Total Post{{post_user|cccount|pluralize:',s'}}: {{post_user|cccount}}</h3>
+    {% if post_user == user %}
+    <h3>Pending Post{{post_user|scount|pluralize:',s'}}: {{post_user|scount}}</h3>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block post_content %}
+<div class="col-md-8">
+    {% for post in post_list %}
+    {% if post.approved_post or post.user == user %}
+        {% include 'posts/_post.html' %}
+    {% endif %}
+    {% endfor  %}
+</div>
+{% endblock %}

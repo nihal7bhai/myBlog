@@ -1,0 +1,76 @@
+<div class="post media">
+    <h3>{{post.message}}</h3>
+    
+    <div class="media-body">
+        <h5 class="medis-heading">
+        <span class="username">
+            <a href="{% url 'posts:for_user' username=post.user.username %}">@{{post.user.username}}</a>
+        </span>
+        <time class="time">
+                {% if not post.approved_post %}
+                    pending approval
+                {% else %}
+                <a href="{% url 'posts:single' username=post.user.username pk=post.pk %}">
+                    {{post.created_at}}</a>
+            {% endif %}
+        </time>
+        </h5>
+        {% if post.group %}
+        <h5>Group: <a href="{% url 'groups:single' slug=post.group.slug %}">{{post.group}}</a></h5>
+        {% endif %}
+        <div class="media-footer" id="delete">
+            {% if user.is_authenticated and user in post.group.members.all%}
+                {%if user ==  post.user or group.created_by == user %}
+                    <a href="{% url 'posts:delete' pk=post.pk %}" title="delete" class="btn btn-simple"><span class="glyphicon glyphicon-trash text-danger" aria-hidden='true'></span><span class="text-danger icon-label"> delete</span></a>
+                    {%if user ==  post.user %}
+                        <a href="{% url 'posts:update' pk=post.pk %}" title="update" class="btn btn-simple"><span class="glyphicon glyphicon-edit text-warning" aria-hidden='true'></span><span class="text-warning icon-label"> update</span></a>
+                    {% endif %}
+                    {%if user ==  group.created_by and not post.approved_post %}
+                        <a href="{% url 'posts:post_approve' pk=post.pk %}" title="approve" class="btn btn-simple"><span class="glyphicon glyphicon-ok text-warning" aria-hidden='true'></span><span class="text-warning icon-label"> approve</span></a>
+                    {% endif %}
+                {% endif %}
+                {% if post.approved_post == True %}
+                {% if post.user in post.group.members.all %}
+                
+                <form class="post-form" action="{% url 'comments:add_comment_to_post' pk=post.pk %}" method='POST'>
+                    {% csrf_token %}
+                    <textarea placeholder="Comment" name="com" style='color:black;'></textarea>
+                    <button type="submit" class="save btn btn-success">Post Comment</button>
+                </form>
+                {% endif %}
+                <hr>
+                
+                {% for com in post.comments.all %}
+                {% if com.approved_comment == True %}
+                <div class="container" style="margin-left:50px;">
+                    <h4>{{com.text}}</h4>
+                    <a href="{% url 'posts:for_user' username=post.user.username %}"><h5>@{{com.author}} {{com.created_date}}</h5></a>
+                
+                    <div >
+                        {% if user == com.author or user == com.post.user %}
+                        <a href="{% url 'comments:comment_remove' pk=com.pk %}" title="delete" class="btn btn-simple"><span class="glyphicon glyphicon-remove text-danger" aria-hidden='true'></span><span class="text-danger icon-label"> delete</span></a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                {% if user == com.post.user %}
+                <div class="container" style="margin-left:2px;">
+                    <h4>{{com.text}}</h4>
+                    <a href="{% url 'posts:for_user' username=post.user.username %}"><h5>@{{com.author}} {{com.created_date}}</h5></a>
+                
+                    <div >
+                        <a href="{% url 'comments:comment_approve' pk=com.pk %}" title="approve" class="btn btn-simple"><span class="glyphicon glyphicon-ok text-warning" aria-hidden='true'></span><span class="text-warning icon-label"> approve</span></a>
+                        <a href="{% url 'comments:comment_remove' pk=com.pk %}" title="delete" class="btn btn-simple"><span class="glyphicon glyphicon-remove text-danger" aria-hidden='true'></span><span class="text-danger icon-label"> delete</span></a>
+                    </div>
+                </div>
+                {% endif %}
+                {% endif %}
+                {% empty %}
+                <p> No Comments!</p>
+                {% endfor %}
+                
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>

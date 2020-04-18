@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class='posts-page'>
+    <div class="container">
+        <div class="row">
+            {% if messages %}
+    {% for message in messages %}
+        <h5>{{ message|capfirst }} </h5>
+    {% endfor %}
+{% endif %}
+            {% block prepost %} {% endblock %}
+            {% block post_content %} {% endblock %}
+            {% block post_post %} {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
